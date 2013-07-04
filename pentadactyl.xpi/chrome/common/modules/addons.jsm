@@ -140,7 +140,8 @@ var actions = {
         action: function (addon) {
             switch(addon.type){
                 case "userscript":
-                    addon.addon._file.launch();
+                    // 不知道怎么搞的，:addon 和 extedit 不一样。
+                    (addon.addon || addon)._file.launch();
                     break;
                 case "userstyle":
                     var stylishCommon = this.window.stylishCommon;
