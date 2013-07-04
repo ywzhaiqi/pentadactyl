@@ -143,6 +143,9 @@ var actions = {
                     // 不知道怎么搞的，:addon 和 extedit 不一样。
                     (addon.addon || addon)._file.launch();
                     break;
+                case "greasemonkey-user-script":
+                    (addon.addon || addon)._script.file.launch();
+                    break;
                 case "userstyle":
                     var stylishCommon = this.window.stylishCommon;
                     if(stylishCommon){
@@ -154,7 +157,7 @@ var actions = {
                     break;
             }
         },
-        filter: function (addon) /extension|userscript|userstyle/.test(addon.type)
+        filter: function (addon) /extension|userscript|userstyle|greasemonkey-user-script/.test(addon.type)
     },
     rehash: {
         name: "extr[ehash]",
