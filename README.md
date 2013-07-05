@@ -7,4 +7,4 @@ pentadactyl
 
 ## pentadactyl.xpi
 
-修改扩展代码，增加一些功能，[详细说明](pentadactyl.xpi/README.md)。
+修改扩展代码，增加一些功能，[详细说明](pentadactyl.xpi)。
