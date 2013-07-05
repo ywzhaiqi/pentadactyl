@@ -4,8 +4,7 @@ dactyl.assert(Cc["@scriptish.erikvold.com/scriptish-service;1"],
 
 
 var scriptish = {
-    list: function()
-        [s for each (s in Scriptish_config.scripts)],
+    list: function() Scriptish_config.scripts,
     get: function(name) {
         let scripts = [s for each (s in scriptish.list()) if (s.name == name)];
         if (scripts.length == 0){
