@@ -1,9 +1,7 @@
-const ScriptishId = "@scriptish.erikvold.com/scriptish-service;1";
 
-if (!Cc[ScriptishId]) {
-    dactyl.log('Scriptish is not installed', 0);
-    return;
-}
+dactyl.assert(Cc["@scriptish.erikvold.com/scriptish-service;1"],
+    'Scriptish is not installed');
+
 
 var scriptish = {
     list: function()

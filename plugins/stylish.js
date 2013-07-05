@@ -163,7 +163,7 @@ let control = {
 };
 
 // commands.addUserCommand
-group.commands.add(["stylish", "ust"],
+group.commands.add(["stylish", "styl"],
     "stylish command",
     function (args) {
         return control.execute(args);
