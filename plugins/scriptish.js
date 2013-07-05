@@ -20,13 +20,8 @@ var scriptish = {
         if(!name) return;
         let script = this.get(name);
         if(!script) return;
-        return File(script.fileURL).launch();
+        return script._file.launch();
     }
-};
-
-var stylish = {
-    list: function()
-        [s for each(s in stylishOverlay.service.list(0, {}))],
 };
 
 group.commands.add(['userscript','usc'], 'list Scriptish scripts',
