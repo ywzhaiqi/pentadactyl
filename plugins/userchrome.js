@@ -1,18 +1,22 @@
 (function(){
 
-dactyl.assert(typeof(userChrome_js) != 'undefined', "userChromeJS must exist");
+dactyl.assert(typeof(userChrome_js) != 'undefined', "userChrome.js must exist");
 
 var userChromeJS = {
-    list: function(){
-        return userChrome_js.scripts;
+    list: function(all){
+        if(all){
+            return userChrome_js.scripts.concat(userChrome_js.overlays);
+        }else{
+            return userChrome_js.scripts;
+        }
     },
     get: function(name){
         if(!name) return;
-        return [s for each(s in userChromeJS.list()) if(s.filename == name)];
+        return [s for each(s in userChromeJS.list(true)) if(s.filename == name)];
     },
-    completer: function(context, args){
+    completer: function(context, args, all){
         context.title = ["script", "description"];
-        context.completions = [[s.filename, s.description] for each(s in userChromeJS.list())];
+        context.completions = [[s.filename, s.description] for each(s in userChromeJS.list(all))];
     }
 };
 
@@ -25,7 +29,9 @@ group.commands.add(['uce[dit]'], 'Edit an userChrome script',
     },
     {
         literal: 1,
-        completer: userChromeJS.completer
+        completer: function(context, args){
+            userChromeJS.completer(context, args, true);
+        }
     },
     true
 );
