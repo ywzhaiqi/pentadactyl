@@ -1,9 +1,6 @@
-
-(function(){
-
 const ScriptishId = "@scriptish.erikvold.com/scriptish-service;1";
 
-if (!Cc[ScriptishId]){
+if (!Cc[ScriptishId]) {
     dactyl.log('Scriptish is not installed', 0);
     return;
 }
@@ -11,31 +8,35 @@ if (!Cc[ScriptishId]){
 var scriptish = {
     list: function()
         [s for each (s in Scriptish_config.scripts)],
-    get: function(name){
-        let scripts = [s for each(s in scriptish.list()) if(s.name==name)];
-        if(scripts.length == 0) return false
-        return scripts[0];
+    get: function(name) {
+        let scripts = [s for each (s in scriptish.list()) if (s.name == name)];
+        if (scripts.length == 0){
+            return false;
+        }else{
+            return scripts[0];
+        }
     },
-    edit: function(name){
-        if(!name) return;
+    edit: function(name) {
+        if (!name) return;
         let script = this.get(name);
-        if(!script) return;
-        return script._file.launch();
+        if (!script) return;
+
+        script._file.launch();
+    },
+    completer: function(context, args) {
+        context.title = ["script", "description"];
+        context.completions = [[s.name, s.description] for each (s in scriptish.list())];
     }
 };
 
-group.commands.add(['userscript','usc'], 'list Scriptish scripts',
-    function(args){
+group.commands.add(['sce[dit]'],
+    'Edit an Scriptish script',
+    function(args) {
         scriptish.edit(args[0]);
     },
     {
         literal: 1,
-        completer: function(context, args){
-            context.title = ["script", "description"];
-            context.completions = [[s.name, s.description] for each(s in scriptish.list())];
-        }
+        completer: scriptish.completer
     },
     true
 );
-
-})();
