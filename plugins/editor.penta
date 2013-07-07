@@ -2,48 +2,51 @@
 " Email: frederick.zou@gmail.com
 " Last Modified: Fri 06 Apr 2012 10:45:25 AM CST
 " License: WTFPL
+
 js <<EOF
 var dynamicEditor = function() {
 	if (!options["editor"])
 		return;
-	
+
 	let textBox = config.isComposeWindow ? null : dactyl.focusedElement;
 	let line, column;
 	if (textBox) {
-		let editor;
+		let editorType;
 		let ownerDocument = textBox.ownerDocument;
 		let href = ownerDocument.location.href;
 		switch(true){
 			case textBox.baseURI == "chrome://browser/content/devtools/webconsole.xul":  // 自带开发工具命令行
-			// 检测是否在firebug命令行中
-			case textBox.parentNode.parentNode.getAttribute('id') in ['fbLargeCommandLine', 'fbCommandLine']:  
-				editor = "editor='gvim -f -c \":set ft=javascript\" -c \":call cursor(<line>, <column>)\" <file>'";
-				break;
-				
-			case href == "chrome://firebug/content/panel.html" && textBox.className == "styleSheetEditor fullPanelEditor ":
-				editor = "editor='gvim -f -c \":set ft=css\" -c \":call cursor(<line>, <column>)\" <file>'";
+			case textBox.parentNode.parentNode.getAttribute('id') == 'fbLargeCommandLine' ||
+                    textBox.parentNode.parentNode.getAttribute('id') == 'fbCommandLine':  // firebug命令行
+                editorType = "javascript";
 				break;
 
-			case href == "chrome://firebug/content/panel.html" && textBox.className=="htmlEditor fullPanelEditor ":
-				editor = "editor='gvim -f -c \":set ft=html\" -c \":call cursor(<line>, <column>)\" <file>'";
+			case href == "chrome://firebug/content/panel.html" && textBox.className == "styleSheetEditor fullPanelEditor ":
+				editorType = "css";
+				break;
+
+			case href == "chrome://firebug/content/panel.html" && textBox.className == "htmlEditor fullPanelEditor ":
+				editorType = "html";
 				break;
 
 			default:
-				editor = "editor='gvim -f -c \":set ft=bbcode\" -c \":call cursor(<line>, <column>)\" <file>'";
-		}		
+                editorType = "bbcode";
+		}
 
-		let saved_editor = options.get('editor').value;
+        let saved_editor = options.get('editor').value;
+        let editor = "editor='gvim -f -c \":set ft=" + editorType + "\" -c \":call cursor(<line>, <column>)\" <file>'";
 		ex.set(editor);
 		events.feedkeys('<C-i>', true);
-		ex.set("editor='"+saved_editor+"'");
+		ex.set("editor='" + saved_editor + "'");
 	} else {
 		let editor = "editor='gvim -f -c \":set ft=bbcode\" +<line> <file>'";
 		let saved_editor = options.get('editor').value;
 		ex.set(editor);
 		events.feedkeys('<C-i>', true);
-		ex.set("editor='"+saved_editor+"'");
+		ex.set("editor='" + saved_editor + "'");
 	}
 };
+
 function setOpt() {
 	if (!options["editor"])
 		return;
@@ -53,6 +56,7 @@ function setOpt() {
 	ex.set("editor='"+saved_editor+"'");
 	// dactyl.timeout(function () ex.set(saved_editor), 1000);
 }
+
 EOF
 
 map -modes=i,t -builtin -silent -js <C-i> dynamicEditor()
