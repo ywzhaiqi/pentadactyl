@@ -412,7 +412,11 @@ var Addons = Module("addons", {
         commands.add(["addo[ns]", "ao"],
             "List installed extensions",
             function (args) {
-                let addons = AddonList(modules, args["-types"], args[0]);
+                let types = args["-types"];
+                if(args[0]){
+                    types = ["extension", "userscript", "greasemonkey-user-script", "userstyle"];
+                }
+                let addons = AddonList(modules, types, args[0]);
                 modules.commandline.echo(addons);
 
                 if (modules.commandline.savingOutput)
