@@ -1,0 +1,68 @@
+js <<EOF
+/**
+ * 自动下载 pentadactyl.xpi 最新版并自动替换修改后的 addons.jsm
+ */
+var addonJSM_Path = "~/pentadactyl/pentadactyl.xpi/addons.jsm";
+
+var mDactyl = {
+    reInstall_dactyl: function() {
+        util.httpGet("https://code.google.com/p/dactyl/downloads/list", {
+            responseType: "document",
+            onload: function(xhr) {
+                var doc = xhr.response;
+                var url = doc.querySelector(".vt.id.col_0 > a").href;
+                var sDate = url.match(/\d{8}/)[0];
+                var aURLToDownload = "http://dactyl.googlecode.com/files/pentadactyl-" + sDate + ".xpi";
+
+                mDactyl.download(aURLToDownload, function(xpiPath) {
+                    mDactyl.replaceAddonsJSM(xpiPath);
+                    dactyl.execute(":extadd " + xpiPath);
+                });
+            }
+        });
+    },
+    download: function(aURLToDownload, callback) {
+        var WebBrowserPersist = Components.Constructor("@mozilla.org/embedding/browser/nsWebBrowserPersist;1",
+            "nsIWebBrowserPersist");
+        var persist = WebBrowserPersist();
+
+        var targetFile = Services.dirsvc.get("Desk", Ci.nsIFile);
+        targetFile.append("pentadactyl.xpi");
+
+        var obj_URI = Services.io.newURI(aURLToDownload, null, null);
+
+        persist.progressListener = {
+            onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
+                if (aCurTotalProgress == aMaxTotalProgress) {
+                    setTimeout(function(){
+                        callback(targetFile.path);
+                    }, 100);
+                }
+            },
+            onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {}
+        };
+        persist.saveURI(obj_URI, null, null, null, "", targetFile, null);
+    },
+    replaceAddonsJSM: function(xpiPath) {
+
+        var addonJSM_file = File(addonJSM_Path).file;
+        if (!addonJSM_file.exists())
+            return dactyl.echo("addons.jsm 路径不正确");
+
+        var xpiFile = File(xpiPath).file;
+        if(!xpiFile.exists())
+            return dactyl.echo("下载的 pentadactyl.xpi 不正确");
+
+        var zipWriter = Components.Constructor("@mozilla.org/zipwriter;1", "nsIZipWriter");
+        var zipW = new zipWriter();
+
+        zipW.open(xpiFile, 0x04);
+        zipW.removeEntry("chrome/common/modules/addons.jsm", false);
+        zipW.addEntryFile("chrome/common/modules/addons.jsm", Ci.nsIZipWriter.COMPRESSION_DEFAULT,
+            addonJSM_file, false);
+        zipW.close();
+    }
+};
+EOF
+
+command! reinstall -js mDactyl.reInstall_dactyl();
