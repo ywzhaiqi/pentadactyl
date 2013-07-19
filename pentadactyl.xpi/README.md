@@ -8,5 +8,7 @@ pentadactyl.xpi
 `:addon` 界面增加 Edit 按钮，新增 `:extedit` 命令。
 
  - extension 查看扩展安装路径
- - userscript、greasemonkey-user-script 直接用编辑器打开文件（需要系统关联 js 文件）
+ - userscript 或 greasemonkey-user-script 直接用编辑器打开文件（需要系统关联 js 文件）
  - userstyle 打开 Stylish 编辑界面
+
+更改 `:addon XXX` 为搜索全部，不再只搜索 extension
