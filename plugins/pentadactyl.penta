@@ -26,7 +26,7 @@ var mDactyl = {
             "nsIWebBrowserPersist");
         var persist = WebBrowserPersist();
 
-        var targetFile = Services.dirsvc.get("Desk", Ci.nsIFile);
+        var targetFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
         targetFile.append("pentadactyl.xpi");
 
         var obj_URI = Services.io.newURI(aURLToDownload, null, null);
