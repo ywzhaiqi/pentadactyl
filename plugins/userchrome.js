@@ -45,7 +45,8 @@ group.commands.add(['ucr[ehash]'], 'Reload an userChrome script',
         let s = userChromeJS.get(args[0]);
         if(!s) return;
 
-        services.observer.notifyObservers(s.file, "flush-cache-entry", "");
+        // services.observer.notifyObservers(s.file, "flush-cache-entry", "");
+        util.flushCache();
 
         Services.scriptloader.loadSubScript(s.url, {}, s.charset || "utf-8");
     },
