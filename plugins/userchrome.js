@@ -12,7 +12,11 @@ var userChromeJS = {
     },
     get: function(name){
         if(!name) return;
-        return [s for each(s in userChromeJS.list(true)) if(s.filename == name)];
+        let scripts = [s for each(s in userChromeJS.list(true)) if(s.filename == name)];
+        if(scripts.length > 0)
+            return scripts[0];
+        else
+            return null;
     },
     completer: function(context, args, all){
         context.title = ["script", "description"];
@@ -22,10 +26,10 @@ var userChromeJS = {
 
 group.commands.add(['uce[dit]'], 'Edit an userChrome script',
     function(args){
-        let scripts = userChromeJS.get(args[0]);
-        if(!scripts) return;
+        let s = userChromeJS.get(args[0]);
+        if(!s) return;
 
-        scripts[0].file.launch();
+        s.file.launch();
     },
     {
         literal: 1,
@@ -38,11 +42,12 @@ group.commands.add(['uce[dit]'], 'Edit an userChrome script',
 
 group.commands.add(['ucr[ehash]'], 'Reload an userChrome script',
     function(args){
-        let scripts = userChromeJS.get(args[0]);
-        if(!scripts) return;
+        let s = userChromeJS.get(args[0]);
+        if(!s) return;
 
-        util.flushCache();
-        Services.scriptloader.loadSubScript(scripts[0].url, {}, scripts[0].charset || "utf-8");
+        services.observer.notifyObservers(s.file, "flush-cache-entry", "");
+
+        Services.scriptloader.loadSubScript(s.url, {}, s.charset || "utf-8");
     },
     {
         literal: 1,
