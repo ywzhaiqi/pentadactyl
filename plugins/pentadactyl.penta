@@ -65,4 +65,4 @@ var mDactyl = {
 };
 EOF
 
-command! reinstall -js mDactyl.reInstall_dactyl();
+command! reinstall -description "install the lasted pentadactyl and add modified addon.jsm" -js mDactyl.reInstall_dactyl();
