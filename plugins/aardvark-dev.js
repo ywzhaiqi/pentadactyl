@@ -509,7 +509,7 @@ var Aardvark = Class("Aardvark", {
             return true;
         }
         return false;
-    },	
+    },
 
     narrower: function narrower(elem) {
         if (elem) {
@@ -625,7 +625,7 @@ var Aardvark = Class("Aardvark", {
         AardvarkDBox(this, {
             selectLink: true,
             title: this.strings.viewXPath,
-            data: DOM(target).xpath
+            data: ["div", {}, DOM(target).xpath]
         }).show();
     },
 
