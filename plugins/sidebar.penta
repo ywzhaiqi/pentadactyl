@@ -1,0 +1,43 @@
+
+map <Leader>a -js toggleAddonSidebar();
+map <Leader>s -js toggleSidebar('viewScrapBookSidebar');
+map <Leader>t -js toggleWebPanel("Google 翻译", "http://translate.google.de/#auto/zh-CN/");
+
+js <<EOF
+
+/**
+ * 配合样式
+ *   Add-ons Manager - In the Sidebar
+ *   Google Translate - In the Sidebar
+ */
+
+// 打开附加组件侧边栏并关注焦点在搜索框
+function toggleAddonSidebar() {
+    toggleSidebar("pentadactyl-viewAddonsSidebar");
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar.hidden) {
+        sidebar.addEventListener('DOMContentLoaded', function() {
+            var doc = sidebar.contentDocument;
+            if (doc) {
+                sidebar.removeEventListener('DOMContentLoaded', arguments.callee, false);
+                var search = doc.getElementById("header-search");
+                if (search)
+                    search.focus();
+            }
+        }, false);
+    }
+}
+
+function toggleWebPanel(title, url){
+    toggleSidebar("viewWebPanelsSidebar");
+    var sidebarBox = document.getElementById('sidebar-box');
+    if(!sidebarBox.hidden){
+        openWebPanel(title, url);
+    }
+}
+
+// function openAddonAndFocus(){
+    // dactyl.execute(":dialog addons");
+// }
+
+EOF
