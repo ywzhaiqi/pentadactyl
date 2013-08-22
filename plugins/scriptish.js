@@ -18,7 +18,7 @@ var scriptish = {
         let script = this.get(name);
         if (!script) return;
 
-        script._file.launch();
+        editor.editFileExternally(script._file.path);
     },
     completer: function(context, args) {
         context.title = ["script", "description"];
@@ -26,7 +26,7 @@ var scriptish = {
     }
 };
 
-group.commands.add(['sce[dit]'],
+group.commands.add(['gmedit'],
     'Edit an Scriptish script',
     function(args) {
         scriptish.edit(args[0]);
