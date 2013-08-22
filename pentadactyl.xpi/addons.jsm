@@ -138,13 +138,16 @@ var actions = {
         name: ["extedit"],
         description: "Edit an extension or open extension folder",
         action: function (addon) {
+            let _file;
             switch(addon.type){
                 case "userscript":
                     // 不知道怎么搞的，:addon 和 extedit 不一样。
-                    (addon.addon || addon)._file.launch();
+                    _file = (addon.addon || addon)._file;
+                    this.editor.editFileExternally(_file.path);
                     break;
                 case "greasemonkey-user-script":
-                    (addon.addon || addon)._script.file.launch();
+                    _file = (addon.addon || addon)._script.file;
+                    this.editor.editFileExternally(_file.path);
                     break;
                 case "userstyle":
                     var stylishCommon = this.window.stylishCommon;
