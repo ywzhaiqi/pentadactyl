@@ -145,6 +145,7 @@ var actions = {
                     _file = (addon.addon || addon)._file;
                     this.editor.editFileExternally(_file.path);
                     break;
+                case "userchromejs":
                 case "greasemonkey-user-script":
                     _file = (addon.addon || addon)._script.file;
                     this.editor.editFileExternally(_file.path);
@@ -160,7 +161,7 @@ var actions = {
                     break;
             }
         },
-        filter: function (addon) /extension|userscript|userstyle|greasemonkey-user-script/.test(addon.type)
+        filter: function (addon) /extension|userscript|userstyle|greasemonkey-user-script|userchromejs/.test(addon.type)
     },
     rehash: {
         name: "extr[ehash]",
@@ -417,7 +418,7 @@ var Addons = Module("addons", {
             function (args) {
                 let types = args["-types"];
                 if(args[0]){
-                    types = ["extension", "userscript", "greasemonkey-user-script", "userstyle"];
+                    types = ["extension", "userscript", "greasemonkey-user-script", "userstyle", "userchromejs"];
                 }
                 let addons = AddonList(modules, types, args[0]);
                 modules.commandline.echo(addons);
