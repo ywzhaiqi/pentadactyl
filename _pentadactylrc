@@ -1,0 +1,212 @@
+loadplugins '\.(js|penta)$'
+group user
+
+" 复制、剪贴、粘贴
+map -m n,v,i,c,t <C-a> <Pass>
+map -m n,v,i,c,t <C-c> <Pass>
+map -m i,c,t <C-v> <Pass>
+map -m i,c,t <C-x> <Pass>
+map -m i,c,t <C-z> <Pass>
+" Other
+map -builtin j 2j
+map -builtin k 2k
+" Pass key
+map -m=n <Left> <Pass>
+map -m=n <Right> <Pass>
+map -m=n <C-d> <Pass>
+
+" <Leader>
+" map <Leader>a :dialog addons<Return>
+map <Leader>e :extedit -types 
+map <Leader>r -js autoReader.launch();
+map <Leader>ie -js io.run("c:\\program files\\internet explorer\\iexplore.exe", [buffer.URL])
+
+" U list closed tabs
+nmap -builtin U :undo<Space>
+" viewsource in new tab
+nmap -builtin gf :tab viewsource<CR>
+
+" 收集所有标签地址到剪贴版
+map -description='Yank all locations to the clipboard' -modes=n,v <C-y> -ex yank :tabdo :echo buffer.uri.spec
+" open things at new tab
+set newtab=all
+
+" surround com and net
+map -modes=c <C-Return> -builtin <End>.com<Home><C-Right>www.<Return>
+map -modes=c <S-Return> -builtin <End>.org<Home><C-Right>www.<Return>
+
+" 选中文字用t o打开google搜索,google的关键字设置为g
+map t -js str=DOM.stringify(buffer.focusedFrame.getSelection()); str!=""?dactyl.open(str, {where: dactyl.NEW_TAB}):CommandExMode().open("tabopen ")
+map o -js str=DOM.stringify(buffer.focusedFrame.getSelection()); str!=""?dactyl.open(str, {where: dactyl.CURRENT_TAB}):CommandExMode().open("open ")
+
+" 特殊站点 passkeys
+set passkeys=
+set passkeys+='mail.google.com':jk<CR>
+set passkeys+='digg.com/reader':jknpo<CR><Space><S-Space>12<S-j><S-k><S-o><S-x>sv?
+"set passkeys+='www.google.com/reader/':jkvoA<CR><Space><S-Space>np<S-n><S-p><S-x><S-o>uf12/a?
+set passkeys+='xianguo.com/reader':?jknpos<S-s>tvm<S-n><S-p>+-<S-m><S-a>ru12<S-/>f
+
+
+" map -count -modes=n,v <C-e> <C-z>
+" map -count -modes=n,v <C-r> <C-v>
+" map -modes=n,v <C-s>w -js wiz_km_onWizSave();
+
+" buffers
+" map -count -modes=n,v <Leader>bc -builtin <count>:buffer<Space>Google<Space>日历<Return>
+" map -count -modes=n,v <Leader>bd -builtin <count>:buffer<Space>Doit.im<Return>
+" map -count -modes=n,v <Leader>bm -builtin <count>:buffer<Space>Gmail<Return>
+" map -count -modes=n,v <Leader>br -builtin <count>:buffer<Space>Google<Space>阅读器<Return>
+" map -count -modes=n,v <Leader>bt -builtin <count>:buffer<Space>Toodledo<Return>
+
+" map -count -modes=n,v A <Nop>
+
+" map <F2> -description 显示隐藏工具栏 -e set go!=T
+
+" left or right tab，跳到第<n>个tab请使用<n>b
+"map -count -modes=n w <C-p>
+"map -count -modes=n e <C-n>
+
+" 按了S后就能自己输入搜索引擎关键字（当然也可以在自动补全菜单里选择），如果不选直接回车就是用默认引擎（对于选中的恰好是链接的情况则是直接打开链接）
+command! -nargs=? -complete=search engineSelect exe 't <args> ' + content.getSelection()
+map S :engineSelect<Space>
+
+command! -nargs=* sitesearch -description 用google站内搜索API搜索当前站点 exe "t https://www.google.com.hk/search?q=" + encodeURIComponent("<args>") + "&sitesearch=" + window.content.location.hostname
+" 对应baidu的
+" com! -nargs=* sitesearch exe "t http://www.baidu.com/s?ie=utf-8&word=" + encodeURIComponent("<args> site:" + window.content.location.hostname);
+
+" 查单词, 结合dict插件翻译选中字符串
+" map -modes=n,v -silent W -js do_selection("dict")
+" map s -description dcit插件-dict.cn -js do_selection(":dict -e d ")
+" map sg -description dcit插件-google翻译 -js do_selection(":dict -e g ")
+" map sy -description dcit插件-有道 -js do_selection(":dict -e y ")
+" map sq -description dcit插件-qq -js do_selection(":dict -e q ")
+" map sz -description dcit插件-汉典 -js do_selection(":dict -e z ")
+
+" command! dict -nargs=* tabopen http://dict.cn/<args>
+	" map <silent> W :exe ":dict "+content.getSelection()<CR>
+
+"}}}
+
+" Options {{{
+	"其它参数 -multiInst -nosession
+    " set editor='"d:\\Program Files\\Notepad++\\notepad++.exe" -n <line> <file>'
+	set editor='"d:\\App\\Sublime text 3\\sublime_text.exe" <file>'
+	set guioptions=bCrsBn
+    set hintkeys=hjklasdfgyuiopqwertnmzxcvb
+	set maxitems=15
+	" 高亮搜索
+    set hlfind
+	command! hl -description toggle高亮  set hlf!
+
+    set nextpattern='^\s*[下后][一]?[页张个篇章节步]\s*$','^(next|Next)$','^(>>|»)$','^(>|»)','(>|»)$'
+	set previouspattern='\s*[上前][一]?[页张个篇章节步]\s*$','^(prev|previous)$','^<$,^(<<|«)$,^(<|«),(<|«)$'
+    set urlseparator='\s((?!http://)[\s\S])*(?=(https?|ftp)://)|(((?!http://)\S)*[^u\s]rce:|((?!http://)\S)*[^r\s]ce:|((?!http://)\S)*[^c\s]e:|((?!http://)\S)*[^e\s]:|((?!http://)\S)*[^:\s])(?=(https?|ftp)://)|\s{5,}((?!http://)\S)+((?!http://)[\s\S])*$|(\s((?!http://)\S)+((?!http://)[\s\S])*\n|\n((?!http://)[\s\S])*((?!http://)\S)+)((?!http://)[\s\S])*$'
+" }}}
+
+
+"  Custom commands {{{
+	command! rebuc -description userChromeJS打开新窗口并重置脚本 -js userChromejs && userChromejs.rebuild();
+
+    " 自定义一个Ex命令(:erc), 用来通过外部编辑器直接编辑rc文件
+	" Firefox 配置文件路径 services.directory.get("ProfD" , Ci.nsIFile).path
+    command! erc -description "Edit the _pentadactylrc file" -js editor.editFileExternally(PATH)
+	command! rc -description "Open the _pentadactylrc file" -js gBrowser.selectedTab = gBrowser.addTab("file:///"+Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile).path+"/_pentadactylrc");
+
+    " 关闭右侧标签
+    " command! tabcloser -description "close all right tabs" -js
+    "用x\c来关闭左右标签
+    " map -modes=n,v c -js gBrowser.removeTab(gBrowser.mCurrentTab.boxObject.nextSibling)
+    " map -modes=n,v x -js gBrowser.removeTab(gBrowser.mCurrentTab.boxObject.previousSibling)
+    "另一种写法
+    "map x -j var tab = gBrowser.mCurrentTab.boxObject.previousSibling; if(tab) gBrowser.removeTab(tab);
+    "map c -j var tab = gBrowser.mCurrentTab.boxObject.nextSibling; if(tab)  gBrowser.removeTab(tab);
+
+	" 开启和关闭javascript或图片
+	command! jstoggle -js (function() { var p = "javascript.enabled"; prefs.set(p, !prefs.get(p)); dactyl.echo(p+" is now set to "+prefs.get(p)+"\n") })()
+	command! imgtoggle -js (function() { var p = "permissions.default.image"; prefs.set(p, prefs.get(p)==1 ? 2 : 1); dactyl.echo(p+" is now set to "+prefs.get(p)+"\n") })()
+
+" }}}
+
+"风格设置{{{
+    "命令行模式禁用输入法{
+	"style -name commandline-ime http://*,https://* input,textarea {ime-mode: active;}
+style -name commandline-ime chrome://* #dactyl-commandline-command input , #dactyl-statusline-field-commandline-command input {ime-mode: inactive;}
+    
+	"cmap <A-i> -js styles.user.get("cmd-ime").enabled ^= true; dactyl.focusedElement.blur();
+
+    "显示dict查询状态
+    style chrome://browser/content/browser.xul statuspanel#statusbar-display { display:block; visibility: visible }
+
+    "加大hint的字号
+"	hi Hint font:bold 15px "Droid Sans Mono", monospace !important; margin:-.2ex; padding: 0 0 0 1px; outline:1px solid rgba(0, 0, 0, .5); background:rgba(255, 248, 231, .8); color:black; text-transform:uppercase;
+
+"}
+
+" 自定义js {{{
+js <<EOF
+    // 如果选中执行 命令+选中的，否则执行原命令
+var do_selection = function(command){
+	// 原先的content.getSelection()只会get到空字符串，所以需要用buffer.focusedFrame.getSelection()
+	var str=content.getSelection();
+	// 保证command最后一个是空格
+	if(command.slice(-1) != " ")
+		command +=  " ";
+	if(str != ""){
+		dactyl.execute(command + str);
+		/* dactyl.open(str, {where: dactyl.CURRENT_TAB})
+		为了保持所选文字的完整信息，就需要使用Pentadactyl给的util.domToString()函数，
+		同时:tabopen命令由于不能处理接收到的"\r\n"换行符，所以直接交由dactyl.open处理
+		*/
+	}else{
+		CommandExMode().open(command);
+	}
+};
+
+	// 优酷等视频网站下载
+var flvcd_download = function(){
+	var url = buffer.URL.replace(/http:\/\//, '');
+	var flvcd_url = "http://www.flvcd.com/parse.php?kw=";
+	if(/youku\.com|tudou\.com|yinyuetai\.com\/video/.test(url)){
+		dactyl.open(flvcd_url + encodeURIComponent(url));
+	}
+	else{
+		dactyl.execute("em Bookmarks.Bookmark This Page");
+	}
+}
+
+function openProfileDirectory() {
+  // Get the profile directory.
+    var file = Components.classes["@mozilla.org/file/directory_service;1"].
+             getService(Components.interfaces.nsIProperties).
+             get("ProfD", Components.interfaces.nsIFile);
+    let profileDir = file.path;
+
+    // Show the profile directory.
+    let nsLocalFile = Components.Constructor("@mozilla.org/file/local;1","nsILocalFile", "initWithPath");
+    new nsLocalFile(profileDir).reveal();
+}
+
+// 多电脑自动设置 view_source.editor.path 和 extensions.scriptish.editor 路径
+var userPath = [
+	"d:\\App\\Sublime text 3\\sublime_text.exe",
+	"D:\\Program Files\\Sublime Text 2\\sublime_text.exe",
+];
+(function checkEditorPath(){
+	let path = prefs.get('view_source.editor.path');
+	if(!File(path).exists()){
+		for(var i = 0 ; i < userPath.length; i ++ ) {
+			if(File(userPath[i]).exists()){
+				prefs.set('view_source.editor.path', userPath[i]);
+				prefs.set('extensions.scriptish.editor', userPath[i]);
+				break;
+			}
+		}
+	}
+})();
+
+
+EOF
+" }}}
+
+" vim:set ft=pentadactyl:
+
