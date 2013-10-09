@@ -1,11 +1,18 @@
 js <<EOF
 /**
- * 自动下载 pentadactyl.xpi 最新版并自动替换修改后的 addons.jsm
+ * 命令 reinstall
+ * 脚本功能：
+ *  1、自动下载 pentadactyl.xpi 最新版
+ *  2、更改RC文件读取位置，放到profile文件夹里，默认未开启（By 心清无痕）。
+ *  3、如果下面的 addonsJSM_Path 路径存在，则替换修改后的 addons.jsm
  */
-var addonJSM_Path = "~/pentadactyl/pentadactyl.xpi/addons.jsm";
+var addonsJSM_Path = "~/pentadactyl/pentadactyl.xpi/addons.jsm";
+var changeXPI_RC = false;  // （非必要）pentadactyl 默认支持按顺序读取 HOME、用户配置
 
 var mDactyl = {
     reInstall_dactyl: function() {
+        var self = this;
+
         util.httpGet("https://code.google.com/p/dactyl/downloads/list", {
             responseType: "document",
             onload: function(xhr) {
@@ -14,55 +21,75 @@ var mDactyl = {
                 var sDate = url.match(/\d{8}/)[0];
                 var aURLToDownload = "http://dactyl.googlecode.com/files/pentadactyl-" + sDate + ".xpi";
 
-                mDactyl.download(aURLToDownload, function(xpiPath) {
-                    mDactyl.replaceAddonsJSM(xpiPath);
-                    dactyl.execute(":extadd " + xpiPath);
+                self.download(aURLToDownload, function(file) {
+                    if(!file.exists()){
+                        dactyl.echoerr("下载的 pentadactyl.xpi 不存在");
+                        return;
+                    }
+                    self.replaceAddonsFile(file);
+                    if(changeXPI_RC){
+                        self.changeRc(file);
+                    }
+                    dactyl.execute(":extadd " + file.path);
                 });
             }
         });
     },
     download: function(aURLToDownload, callback) {
-        var WebBrowserPersist = Components.Constructor("@mozilla.org/embedding/browser/nsWebBrowserPersist;1",
-            "nsIWebBrowserPersist");
-        var persist = WebBrowserPersist();
+        var targetFile, obj_URI, persist;
 
-        var targetFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+        targetFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
         targetFile.append("pentadactyl.xpi");
 
-        var obj_URI = Services.io.newURI(aURLToDownload, null, null);
+        obj_URI = Services.io.newURI(aURLToDownload, null, null);
 
+        persist = services.Persist();
+        persist.persistFlags = persist.PERSIST_FLAGS_REPLACE_EXISTING_FILES;
         persist.progressListener = {
             onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
-                if (aCurTotalProgress == aMaxTotalProgress) {
-                    setTimeout(function(){
-                        callback(targetFile.path);
-                    }, 100);
-                }
             },
-            onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {}
+            onStateChange: function(progress, request, flags, status) {
+                if ((flags & Ci.nsIWebProgressListener.STATE_STOP) && status == 0) {
+                    callback(targetFile);
+                }
+            }
         };
         persist.saveURI(obj_URI, null, null, null, "", targetFile, null);
     },
-    replaceAddonsJSM: function(xpiPath) {
+    replaceAddonsFile: function(xpiFile) {
+        // 如果存在则替换 addons.jsm
+        var file = File(addonsJSM_Path).file;
+        if(!file.exists()){
+            return;
+        }
 
-        var addonJSM_file = File(addonJSM_Path).file;
-        if (!addonJSM_file.exists())
-            return dactyl.echo("addons.jsm 路径不正确");
-
-        var xpiFile = File(xpiPath).file;
-        if(!xpiFile.exists())
-            return dactyl.echo("下载的 pentadactyl.xpi 不正确");
-
-        var zipWriter = Components.Constructor("@mozilla.org/zipwriter;1", "nsIZipWriter");
-        var zipW = new zipWriter();
-
-        zipW.open(xpiFile, 0x04);
+        var zipW = services.ZipWriter(xpiFile, File.MODE_RDWR);
         zipW.removeEntry("chrome/common/modules/addons.jsm", false);
         zipW.addEntryFile("chrome/common/modules/addons.jsm", Ci.nsIZipWriter.COMPRESSION_DEFAULT,
-            addonJSM_file, false);
+                addonsJSM_File, false);
+        zipW.close();
+    },
+    changeRc: function(xpiFile) {  //更改RC文件读取位置
+        const ZIP_DACTYL_PATH = "chrome/common/content/dactyl.js";
+
+        // 读取
+        var zipR = services.ZipReader(xpiFile);
+        var tmpCont = File.readStream(zipR.getInputStream(ZIP_DACTYL_PATH));
+        tmpCont = tmpCont.replace(/io\.getRCFile\("~"\)/g, 'io.getRCFile(services.directory.get("ProfD", Ci.nsIFile).path)');
+        zipR.close();
+
+        // 转化
+        var stream = services.CharsetConv("UTF-8")
+                            .convertToInputStream(tmpCont);
+
+        // 写入
+        var zipW = services.ZipWriter(xpiFile, File.MODE_RDWR);
+        zipW.removeEntry(ZIP_DACTYL_PATH, false);
+        zipW.addEntryStream(ZIP_DACTYL_PATH, Date.now(), Ci.nsIZipWriter.COMPRESSION_DEFAULT,
+                stream, false);
         zipW.close();
     }
 };
 EOF
 
-command! reinstall -description "install the lasted pentadactyl and add modified addon.jsm" -js mDactyl.reInstall_dactyl();
+command! reinstall -description "install the lasted pentadactyl and change rc path add modified addon.jsm" -js mDactyl.reInstall_dactyl();
