@@ -14,6 +14,8 @@ pentadactyl
 - [stylish.js](plugins/stylish.js)：对 Stylish 的管理，可用扩展（修改版）自带的命令替代。
 - [pentadactyl.penta](plugins/pentadactyl.penta)
     - 命令：`reinstall`，自动下载 pentadactyl.xpi 最新版并自动替换修改后的 addons.jsm
+- [buftabs.js](plugins/buftabs.js)
+    - [grassofhust/buftabs](https://github.com/grassofhust/buftabs) 修正版，修正了原版样式在新版失效的问题。
 - [editor.penta](plugins/editor.penta)
     - 修改版，`Ctrl+I` 打开 vim 编辑并设置文件类型
 

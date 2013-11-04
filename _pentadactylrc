@@ -1,5 +1,30 @@
+js <<EOF
+const TC_PATH = "D:\\App\\Totalcmd\\Totalcmd.exe";
+
+const ProfD = services.directory.get("ProfD", Ci.nsIFile);
+
+// dactyl.execute("set runtimepath=" + ProfD.path);
+
+function openProfileDirectory() {
+	if(File(TC_PATH).exists()){
+		io.run(TC_PATH, [ProfD.path, "/T"]);
+	}else{
+		ProfD.reveal();
+	}
+}
+EOF
+
 loadplugins '\.(js|penta)$'
-group user
+
+" 上下翻页
+map a <S-Space>
+
+set editor='"d:\\Program Files\\Sublime text 2\\sublime_text.exe" <file>'
+
+com! openProfile -d "Open Profile directory" -js openProfileDirectory();
+" editor.editFileExternally(PATH);
+com! erc -d "Edit the _pentadactylrc file" -js io.run("gvim", [PATH])
+com! src -d "Source the _pentadactylrc file" :so $HOME/_pentadactylrc
 
 " 复制、剪贴、粘贴
 map -m n,v,i,c,t <C-a> <Pass>
@@ -14,10 +39,11 @@ map -builtin k 2k
 map -m=n <Left> <Pass>
 map -m=n <Right> <Pass>
 map -m=n <C-d> <Pass>
+map -m=n <C-b> <pass>
 
 " <Leader>
 " map <Leader>a :dialog addons<Return>
-map <Leader>e :extedit -types 
+map <Leader>e :extedit -types<Space>
 map <Leader>r -js autoReader.launch();
 map <Leader>ie -js io.run("c:\\program files\\internet explorer\\iexplore.exe", [buffer.URL])
 
@@ -28,8 +54,7 @@ nmap -builtin gf :tab viewsource<CR>
 
 " 收集所有标签地址到剪贴版
 map -description='Yank all locations to the clipboard' -modes=n,v <C-y> -ex yank :tabdo :echo buffer.uri.spec
-" open things at new tab
-set newtab=all
+" set newtab=all
 
 " surround com and net
 map -modes=c <C-Return> -builtin <End>.com<Home><C-Right>www.<Return>
@@ -89,28 +114,22 @@ command! -nargs=* sitesearch -description 用google站内搜索API搜索当前�
 
 " Options {{{
 	"其它参数 -multiInst -nosession
-    " set editor='"d:\\Program Files\\Notepad++\\notepad++.exe" -n <line> <file>'
-	set editor='"d:\\App\\Sublime text 3\\sublime_text.exe" <file>'
 	set guioptions=bCrsBn
     set hintkeys=hjklasdfgyuiopqwertnmzxcvb
-	set maxitems=15
+    set maxitems=15
 	" 高亮搜索
     set hlfind
 	command! hl -description toggle高亮  set hlf!
 
     set nextpattern='^\s*[下后][一]?[页张个篇章节步]\s*$','^(next|Next)$','^(>>|»)$','^(>|»)','(>|»)$'
 	set previouspattern='\s*[上前][一]?[页张个篇章节步]\s*$','^(prev|previous)$','^<$,^(<<|«)$,^(<|«),(<|«)$'
-    set urlseparator='\s((?!http://)[\s\S])*(?=(https?|ftp)://)|(((?!http://)\S)*[^u\s]rce:|((?!http://)\S)*[^r\s]ce:|((?!http://)\S)*[^c\s]e:|((?!http://)\S)*[^e\s]:|((?!http://)\S)*[^:\s])(?=(https?|ftp)://)|\s{5,}((?!http://)\S)+((?!http://)[\s\S])*$|(\s((?!http://)\S)+((?!http://)[\s\S])*\n|\n((?!http://)[\s\S])*((?!http://)\S)+)((?!http://)[\s\S])*$'
+" set urlseparator='\s((?!http://)[\s\S])*(?=(https?|ftp)://)|(((?!http://)\S)*[^u\s]rce:|((?!http://)\S)*[^r\s]ce:|((?!http://)\S)*[^c\s]e:|((?!http://)\S)*[^e\s]:|((?!http://)\S)*[^:\s])(?=(https?|ftp)://)|\s{5,}((?!http://)\S)+((?!http://)[\s\S])*$|(\s((?!http://)\S)+((?!http://)[\s\S])*\n|\n((?!http://)[\s\S])*((?!http://)\S)+)((?!http://)[\s\S])*$'
 " }}}
 
 
 "  Custom commands {{{
 	command! rebuc -description userChromeJS打开新窗口并重置脚本 -js userChromejs && userChromejs.rebuild();
 
-    " 自定义一个Ex命令(:erc), 用来通过外部编辑器直接编辑rc文件
-	" Firefox 配置文件路径 services.directory.get("ProfD" , Ci.nsIFile).path
-    command! erc -description "Edit the _pentadactylrc file" -js editor.editFileExternally(PATH)
-	command! rc -description "Open the _pentadactylrc file" -js gBrowser.selectedTab = gBrowser.addTab("file:///"+Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile).path+"/_pentadactylrc");
 
     " 关闭右侧标签
     " command! tabcloser -description "close all right tabs" -js
@@ -127,18 +146,18 @@ command! -nargs=* sitesearch -description 用google站内搜索API搜索当前�
 
 " }}}
 
-"风格设置{{{
-    "命令行模式禁用输入法{
-	"style -name commandline-ime http://*,https://* input,textarea {ime-mode: active;}
+
+"命令行模式禁用输入法
+"style -name commandline-ime http://*,https://* input,textarea {ime-mode: active;}
 style -name commandline-ime chrome://* #dactyl-commandline-command input , #dactyl-statusline-field-commandline-command input {ime-mode: inactive;}
-    
+
 	"cmap <A-i> -js styles.user.get("cmd-ime").enabled ^= true; dactyl.focusedElement.blur();
 
-    "显示dict查询状态
-    style chrome://browser/content/browser.xul statuspanel#statusbar-display { display:block; visibility: visible }
+"显示dict查询状态
+style chrome://browser/content/browser.xul statuspanel#statusbar-display { display:block; visibility: visible }
 
-    "加大hint的字号
-"	hi Hint font:bold 15px "Droid Sans Mono", monospace !important; margin:-.2ex; padding: 0 0 0 1px; outline:1px solid rgba(0, 0, 0, .5); background:rgba(255, 248, 231, .8); color:black; text-transform:uppercase;
+"加大hint的字号
+hi Hint font:bold 12px "Droid Sans Mono", monospace !important; margin:-.2ex; padding: 0 0 0 1px; outline:1px solid rgba(0, 0, 0, .5); background:rgba(255, 248, 231, .8); color:black; text-transform:uppercase;
 
 "}
 
@@ -174,17 +193,7 @@ var flvcd_download = function(){
 	}
 }
 
-function openProfileDirectory() {
-  // Get the profile directory.
-    var file = Components.classes["@mozilla.org/file/directory_service;1"].
-             getService(Components.interfaces.nsIProperties).
-             get("ProfD", Components.interfaces.nsIFile);
-    let profileDir = file.path;
 
-    // Show the profile directory.
-    let nsLocalFile = Components.Constructor("@mozilla.org/file/local;1","nsILocalFile", "initWithPath");
-    new nsLocalFile(profileDir).reveal();
-}
 
 // 多电脑自动设置 view_source.editor.path 和 extensions.scriptish.editor 路径
 var userPath = [
