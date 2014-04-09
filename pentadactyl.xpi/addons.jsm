@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2012 Kris Maglione <maglione.k@gmail.com>
+// Copyright (c) 2009-2014 Kris Maglione <maglione.k@gmail.com>
 // Copyright (c) 2009-2010 by Doug Kearns <dougkearns@gmail.com>
 //
 // This work is licensed for reuse under an MIT license. Details are
@@ -15,8 +15,7 @@ defineModule("addons", {
 this.lazyRequire("completion", ["completion"]);
 lazyRequire("template", ["template"]);
 
-var callResult = function callResult(method) {
-    let args = Array.slice(arguments, 1);
+var callResult = function callResult(method, ...args) {
     return function (result) { result[method].apply(result, args); };
 }
 
@@ -25,7 +24,7 @@ var listener = function listener(action, event)
         this.dactyl[install.error ? "echoerr" : "echomsg"](
             _("addon.error", action, event, (install.name || install.sourceURI.spec) +
                 (install.error ? ": " + addons.errors[install.error] : "")));
-    }
+    };
 
 var AddonListener = Class("AddonListener", {
     init: function init(modules) {
@@ -54,7 +53,7 @@ var updateAddons = Class("UpgradeListener", AddonListener, {
 
         this.remaining = addons;
         this.upgrade = [];
-        this.dactyl.echomsg(_("addon.check", addons.map(function (a) a.name).join(", ")));
+        this.dactyl.echomsg(_("addon.check", addons.map(a => a.name).join(", ")));
         for (let addon in values(addons))
             addon.findUpdates(this, AddonManager.UPDATE_WHEN_USER_REQUESTED, null, null);
 
@@ -65,11 +64,11 @@ var updateAddons = Class("UpgradeListener", AddonListener, {
         install.install();
     },
     onUpdateFinished: function (addon, error) {
-        this.remaining = this.remaining.filter(function (a) a.type != addon.type || a.id != addon.id);
+        this.remaining = this.remaining.filter(a => (a.type != addon.type || a.id != addon.id));
         if (!this.remaining.length)
             this.dactyl.echomsg(
                 this.upgrade.length
-                    ? _("addon.installingUpdates", this.upgrade.map(function (i) i.name).join(", "))
+                    ? _("addon.installingUpdates", this.upgrade.map(i => i.name).join(", "))
                     : _("addon.noUpdates"));
     }
 });
@@ -141,7 +140,7 @@ var actions = {
             let _file;
             switch(addon.type){
                 case "userscript":
-                    // ä¸çŸ¥é“æ€Žä¹ˆæžçš„ï¼Œ:addon å’Œ extedit ä¸ä¸€æ ·ã€‚
+                    // ²»ÖªµÀÔõÃ´¸ãµÄ£¬:addon ºÍ extedit ²»Ò»Ñù¡£
                     _file = (addon.addon || addon)._file;
                     this.editor.editFileExternally(_file.path);
                     break;
@@ -167,7 +166,6 @@ var actions = {
         name: "extr[ehash]",
         description: "Reload an extension",
         action: function (addon) {
-            util.assert(config.haveGecko("2b"), _("command.notUseful", config.host));
             util.flushCache();
             util.timeout(function () {
                 addon.userDisabled = true;
@@ -175,8 +173,10 @@ var actions = {
             });
         },
         get filter() {
-            return function (addon) !addon.userDisabled &&
-                !(addon.operationsRequiringRestart & (AddonManager.OP_NEEDS_RESTART_ENABLE | AddonManager.OP_NEEDS_RESTART_DISABLE))
+            return addon => (
+                !addon.userDisabled &&
+                !(addon.operationsRequiringRestart & (AddonManager.OP_NEEDS_RESTART_ENABLE
+                                                     | AddonManager.OP_NEEDS_RESTART_DISABLE)));
         },
         perm: "disable"
     },
@@ -192,7 +192,6 @@ var actions = {
         perm: "upgrade"
     }
 };
-
 
 var Addon = Class("Addon", {
     init: function init(addon, list) {
@@ -222,7 +221,8 @@ var Addon = Class("Addon", {
     },
 
     commandAllowed: function commandAllowed(cmd) {
-        util.assert(Set.has(actions, cmd), _("addon.unknownCommand"));
+        util.assert(hasOwnProperty(actions, cmd),
+                    _("addon.unknownCommand"));
 
         let action = actions[cmd];
         if ("perm" in action && !(this.permissions & AddonManager["PERM_CAN_" + action.perm.toUpperCase()]))
@@ -264,14 +264,13 @@ var Addon = Class("Addon", {
                     ["span", { highlight: pending[0] }, pending[1]],
                     " on ",
                     ["a", { href: "#", "dactyl:command": "dactyl.restart" }, "restart"],
-                    ")"]
+                    ")"];
         return info;
     },
 
     update: function callee() {
-        let self = this;
-        function update(key, xml) {
-            let node = self.nodes[key];
+        let update = (key, xml) => {
+            let node = this.nodes[key];
             while (node.firstChild)
                 node.removeChild(node.firstChild);
 
@@ -316,14 +315,14 @@ var AddonList = Class("AddonList", {
         this.modules = modules;
         this.filter = filter && filter.toLowerCase();
         this.nodes = {};
-        this.addons = [];
+        this.addons = {};
         this.ready = false;
 
-        AddonManager.getAddonsByTypes(types, this.closure(function (addons) {
+        AddonManager.getAddonsByTypes(types, addons => {
             this._addons = addons;
             if (this.document)
                 this._init();
-        }));
+        });
         AddonManager.addAddonListener(this);
     },
     cleanup: function cleanup() {
@@ -331,7 +330,7 @@ var AddonList = Class("AddonList", {
     },
 
     _init: function _init() {
-        this._addons.forEach(this.closure.addAddon);
+        this._addons.forEach(this.bound.addAddon);
         this.ready = true;
         this.update();
     },
@@ -362,7 +361,7 @@ var AddonList = Class("AddonList", {
             addon = Addon(addon, this);
             this.addons[addon.id] = addon;
 
-            let index = values(this.addons).sort(function (a, b) a.compare(b))
+            let index = values(this.addons).sort((a, b) => a.compare(b))
                                            .indexOf(addon);
 
             this.nodes.list.insertBefore(addon.nodes.row,
@@ -403,10 +402,10 @@ var AddonList = Class("AddonList", {
 });
 
 var Addons = Module("addons", {
-    errors: Class.Memoize(function ()
+    errors: Class.Memoize(() =>
             array(["ERROR_NETWORK_FAILURE", "ERROR_INCORRECT_HASH",
                    "ERROR_CORRUPT_FILE", "ERROR_FILE_ACCESS"])
-                .map(function (e) [AddonManager[e], _("AddonManager." + e)])
+                .map(e => [AddonManager[e], _("AddonManager." + e)])
                 .toObject())
 }, {
 }, {
@@ -424,7 +423,7 @@ var Addons = Module("addons", {
                 modules.commandline.echo(addons);
 
                 if (modules.commandline.savingOutput)
-                    util.waitFor(function () addons.ready);
+                    util.waitFor(() => addons.ready);
             },
             {
                 argCount: "?",
@@ -462,7 +461,7 @@ var Addons = Module("addons", {
             }, {
                 argCount: "1",
                 completer: function (context) {
-                    context.filters.push(function ({ isdir, text }) isdir || /\.xpi$/.test(text));
+                    context.filters.push(({ isdir, text }) => isdir || /\.xpi$/.test(text));
                     completion.file(context);
                 },
                 literal: 0
@@ -484,7 +483,7 @@ var Addons = Module("addons", {
 
                     AddonManager.getAddonsByTypes(args["-types"], dactyl.wrapCallback(function (list) {
                         if (!args.bang || command.bang) {
-                            list = list.filter(function (addon) addon.id == name || addon.name == name);
+                            list = list.filter(addon => (addon.id == name || addon.name == name));
                             dactyl.assert(list.length, _("error.invalidArgument", name));
                             dactyl.assert(list.some(ok), _("error.invalidOperation"));
                             list = list.filter(ok);
@@ -493,14 +492,14 @@ var Addons = Module("addons", {
                         if (command.actions)
                             command.actions(list, this.modules);
                         else
-                            list.forEach(function (addon) command.action.call(this.modules, addon, args.bang), this);
+                            list.forEach(addon => { command.action.call(this.modules, addon, args.bang) });
                     }));
                 }, {
                     argCount: "?", // FIXME: should be "1"
                     bang: true,
                     completer: function (context, args) {
                         completion.addon(context, args["-types"]);
-                        context.filters.push(function ({ item }) ok(item));
+                        context.filters.push(({ item }) => ok(item));
                     },
                     literal: 0,
                     options: [
@@ -519,7 +518,7 @@ var Addons = Module("addons", {
         completion.addonType = function addonType(context) {
             let base = ["extension", "theme"];
             function update(types) {
-                context.completions = types.map(function (t) [t, util.capitalize(t)]);
+                context.completions = types.map(t => [t, util.capitalize(t)]);
             }
 
             context.generate = function generate() {
@@ -528,7 +527,7 @@ var Addons = Module("addons", {
                     context.incomplete = true;
                     AddonManager.getAllAddons(function (addons) {
                         context.incomplete = false;
-                        update(array.uniq(base.concat(addons.map(function (a) a.type)),
+                        update(array.uniq(base.concat(addons.map(a => a.type)),
                                           true));
                     });
                 }
@@ -539,7 +538,7 @@ var Addons = Module("addons", {
             context.title = ["Add-on"];
             context.anchored = false;
             context.keys = {
-                text: function (addon) [addon.name, addon.id],
+                text: addon => [addon.name, addon.id],
                 description: "description",
                 icon: "iconURL"
             };
@@ -560,4 +559,4 @@ endModule();
 
 } catch(e){ if (isString(e)) e = Error(e); dump(e.fileName+":"+e.lineNumber+": "+e+"\n" + e.stack); }
 
-// vim: set fdm=marker sw=4 ts=4 et ft=javascript:
+// vim: set fdm=marker sw=4 sts=4 ts=8 et ft=javascript:
