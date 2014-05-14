@@ -22,8 +22,10 @@ plugins
 
 其它的一些链接
 
-- [grassofhust/dict.js](https://github.com/grassofhust/dict.js)，通过 `:dict` 查询单词
-- [grassofhust/buftabs](https://github.com/grassofhust/buftabs)，把标签栏移至下面的状态栏。
+- [dict.js - grassofhust](https://github.com/grassofhust/dict.js)，通过 `:dict` 查询单词。
+- [buftabs - grassofhust](https://github.com/grassofhust/buftabs)，把标签栏移至下面的状态栏。
+- [Keefox.js - wideweide/pentadactyl](https://github.com/wideweide/pentadactyl/blob/master/Keefox.js)
+- [AlertBox.js - wideweide/pentadactyl](https://github.com/wideweide/pentadactyl/blob/master/AlertBox.js)
 
 pentadactyl.xpi
 ---------------
@@ -35,3 +37,8 @@ pentadactyl.xpi
 ----
 
  - 在 github 可用 `50G` 到第50行，可通过 `:set linenumbers` 设置。
+
+
+一些链接
+
+- [Pentadactyl[vimperator分枝]使用心得,期待交流 - Mozilla 社区](https://g.mozest.com/thread-38908-1-1)
