@@ -20,6 +20,11 @@ plugins
 - [editor.penta](plugins/editor.penta)
     - 修改版，`Ctrl+I` 打开 vim 编辑并设置文件类型
 
+其它的一些链接
+
+- [grassofhust/dict.js](https://github.com/grassofhust/dict.js)，通过 `:dict` 查询单词
+- [grassofhust/buftabs](https://github.com/grassofhust/buftabs)，把标签栏移至下面的状态栏。
+
 pentadactyl.xpi
 ---------------
 
