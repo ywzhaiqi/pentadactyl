@@ -13,13 +13,7 @@ var mDactyl = {
     reInstall_dactyl: function() {
         var self = this;
 
-        util.httpGet("https://code.google.com/p/dactyl/downloads/list", {
-            responseType: "document",
-            onload: function(xhr) {
-                var doc = xhr.response;
-                var url = doc.querySelector(".vt.id.col_0 > a").href;
-                var sDate = url.match(/\d{8}/)[0];
-                var aURLToDownload = "http://dactyl.googlecode.com/files/pentadactyl-" + sDate + ".xpi";
+        var aURLToDownload = "http://5digits.org/nightly/pentadactyl-latest.xpi";
 
                 self.download(aURLToDownload, function(file) {
                     if(!file.exists()){
@@ -31,8 +25,6 @@ var mDactyl = {
                         self.changeRc(file);
                     }
                     dactyl.execute(":extadd " + file.path);
-                });
-            }
         });
     },
     download: function(aURLToDownload, callback) {
