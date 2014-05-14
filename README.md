@@ -1,6 +1,8 @@
 pentadactyl
 ===========
 
+[说明](Notes)
+
 plugins
 -------
 
@@ -40,5 +42,6 @@ pentadactyl.xpi
 
 
 一些链接
+-------
 
 - [Pentadactyl[vimperator分枝]使用心得,期待交流 - Mozilla 社区](https://g.mozest.com/thread-38908-1-1)
