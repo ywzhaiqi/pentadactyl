@@ -140,7 +140,7 @@ var actions = {
             let _file;
             switch(addon.type){
                 case "userscript":
-                    // ²»ÖªµÀÔõÃ´¸ãµÄ£¬:addon ºÍ extedit ²»Ò»Ñù¡£
+                    // ä¸çŸ¥é“æ€Žä¹ˆæžçš„ï¼Œ:addon å’Œ extedit ä¸ä¸€æ ·ã€‚
                     _file = (addon.addon || addon)._file;
                     this.editor.editFileExternally(_file.path);
                     break;
@@ -318,11 +318,11 @@ var AddonList = Class("AddonList", {
         this.addons = {};
         this.ready = false;
 
-        AddonManager.getAddonsByTypes(types, addons => {
+        AddonManager.getAddonsByTypes(types, this.closure(function (addons) {
             this._addons = addons;
             if (this.document)
                 this._init();
-        });
+        }));
         AddonManager.addAddonListener(this);
     },
     cleanup: function cleanup() {
@@ -330,7 +330,7 @@ var AddonList = Class("AddonList", {
     },
 
     _init: function _init() {
-        this._addons.forEach(this.bound.addAddon);
+        this._addons.forEach(this.closure.addAddon);
         this.ready = true;
         this.update();
     },
@@ -420,6 +420,7 @@ var Addons = Module("addons", {
                     types = ["extension", "userscript", "greasemonkey-user-script", "userstyle", "userchromejs"];
                 }
                 let addons = AddonList(modules, types, args[0]);
+                // let addons = AddonList(modules, args["-types"], args[0]);
                 modules.commandline.echo(addons);
 
                 if (modules.commandline.savingOutput)
