@@ -210,9 +210,10 @@ var Addon = Class("Addon", {
                     ["a", { highlight: "Button", href: "javascript:0", key: "enable" }, _("addon.action.On")],
                     ["a", { highlight: "Button", href: "javascript:0", key: "disable" }, _("addon.action.Off")],
                     ["a", { highlight: "Button", href: "javascript:0", key: "delete" }, _("addon.action.Delete")],
+                    ["a", { highlight: "Button", href: "javascript:0", key: "edit" }, "Edt"],
                     ["a", { highlight: "Button", href: "javascript:0", key: "update" }, _("addon.action.Update")],
                     ["a", { highlight: "Button", href: "javascript:0", key: "options" }, _("addon.action.Options")],
-                    ["a", { highlight: "Button", href: "javascript:0", key: "edit" }, "Edit"]],
+                ],
                 ["td", { highlight: "AddonStatus", key: "status" }],
                 ["td", { highlight: "AddonDescription", key: "description" }]],
             this.list.document, this.nodes);
