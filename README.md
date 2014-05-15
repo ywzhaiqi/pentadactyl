@@ -26,8 +26,8 @@ plugins
 
 - [dict.js - grassofhust](https://github.com/grassofhust/dict.js)，通过 `:dict` 查询单词。
 - [buftabs - grassofhust](https://github.com/grassofhust/buftabs)，把标签栏移至下面的状态栏。
-- [Keefox.js - wideweide/pentadactyl](https://github.com/wideweide/pentadactyl/blob/master/Keefox.js)
-- [AlertBox.js - wideweide/pentadactyl](https://github.com/wideweide/pentadactyl/blob/master/AlertBox.js)
+- [Keefox.js - wideweide](https://github.com/wideweide/pentadactyl/blob/master/Keefox.js)
+- [AlertBox.js - wideweide](https://github.com/wideweide/pentadactyl/blob/master/AlertBox.js)
 
 pentadactyl.xpi
 ---------------

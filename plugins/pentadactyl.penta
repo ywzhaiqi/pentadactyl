@@ -13,18 +13,19 @@ var mDactyl = {
     reInstall_dactyl: function() {
         var self = this;
 
-        var aURLToDownload = "http://5digits.org/nightly/pentadactyl-latest.xpi";
+        // var aURLToDownload = "http://5digits.org/nightly/pentadactyl-latest.xpi";
+        var aURLToDownload = "https://addons.mozilla.org/firefox/downloads/file/249096/pentadactyl-1.1-fx.xpi";
 
-                self.download(aURLToDownload, function(file) {
-                    if(!file.exists()){
-                        dactyl.echoerr("下载的 pentadactyl.xpi 不存在");
-                        return;
-                    }
-                    self.replaceAddonsFile(file);
-                    if(changeXPI_RC){
-                        self.changeRc(file);
-                    }
-                    dactyl.execute(":extadd " + file.path);
+        self.download(aURLToDownload, function(file) {
+            if(!file.exists()){
+                dactyl.echoerr("下载的 pentadactyl.xpi 不存在");
+                return;
+            }
+            self.replaceAddonsFile(file);
+            if(changeXPI_RC){
+                self.changeRc(file);
+            }
+            dactyl.execute(":extadd " + file.path);
         });
     },
     download: function(aURLToDownload, callback) {
