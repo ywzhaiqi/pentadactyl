@@ -99,7 +99,6 @@ var mExtensions = {
         }
     }
 };
-
 var actions = {
     delete: {
         name: ["extde[lete]", "extrm"],
@@ -212,8 +211,7 @@ var Addon = Class("Addon", {
                     ["a", { highlight: "Button", href: "javascript:0", key: "delete" }, _("addon.action.Delete")],
                     ["a", { highlight: "Button", href: "javascript:0", key: "edit" }, "Edt"],
                     ["a", { highlight: "Button", href: "javascript:0", key: "update" }, _("addon.action.Update")],
-                    ["a", { highlight: "Button", href: "javascript:0", key: "options" }, _("addon.action.Options")],
-                ],
+                    ["a", { highlight: "Button", href: "javascript:0", key: "options" }, _("addon.action.Options")]],
                 ["td", { highlight: "AddonStatus", key: "status" }],
                 ["td", { highlight: "AddonDescription", key: "description" }]],
             this.list.document, this.nodes);
@@ -319,11 +317,11 @@ var AddonList = Class("AddonList", {
         this.addons = {};
         this.ready = false;
 
-        AddonManager.getAddonsByTypes(types, this.closure(function (addons) {
+        AddonManager.getAddonsByTypes(types, addons => {
             this._addons = addons;
             if (this.document)
                 this._init();
-        }));
+        });
         AddonManager.addAddonListener(this);
     },
     cleanup: function cleanup() {
@@ -331,7 +329,7 @@ var AddonList = Class("AddonList", {
     },
 
     _init: function _init() {
-        this._addons.forEach(this.closure.addAddon);
+        this._addons.forEach(this.bound.addAddon);
         this.ready = true;
         this.update();
     },
