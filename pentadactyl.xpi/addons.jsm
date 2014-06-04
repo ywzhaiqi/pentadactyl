@@ -136,7 +136,15 @@ var actions = {
         name: ["extedit"],
         description: "Edit an extension or open extension folder",
         action: function (addon) {
-            let _file;
+            let _file,
+                self = this;
+
+            function handlePath(path) {
+                var UI = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Ci.nsIScriptableUnicodeConverter);
+                UI.charset = self.window.navigator.platform.toLowerCase().indexOf("win") >= 0? "gbk": "UTF-8";
+                return UI.ConvertFromUnicode(path);
+            }
+
             switch(addon.type){
                 case "userscript":
                     // 不知道怎么搞的，:addon 和 extedit 不一样。
@@ -146,7 +154,7 @@ var actions = {
                 case "userchromejs":
                 case "greasemonkey-user-script":
                     _file = (addon.addon || addon)._script.file;
-                    this.editor.editFileExternally(_file.path);
+                    this.editor.editFileExternally(handlePath(_file.path));
                     break;
                 case "userstyle":
                     var stylishCommon = this.window.stylishCommon;
