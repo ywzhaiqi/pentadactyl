@@ -126,7 +126,8 @@ var actions = {
         bang: true,
         action: function (addon, bang) {
             if (bang)
-                this.window.openDialog(addon.optionsURL, "_blank", "chrome");
+                // this.window.openDialog(addon.optionsURL, "_blank", "chrome");
+                this.window.open(addon.optionsURL, "_blank", "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
             else
                 this.dactyl.open(addon.optionsURL, { from: "extoptions" });
         },
