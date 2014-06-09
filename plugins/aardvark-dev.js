@@ -509,7 +509,7 @@ var Aardvark = Class("Aardvark", {
             return true;
         }
         return false;
-    },
+    },	
 
     narrower: function narrower(elem) {
         if (elem) {
@@ -1151,13 +1151,13 @@ var Aardvark = Class("Aardvark", {
 // valid selectable element
     findValidElement: function findValidElement(elem) {
         for (; elem; elem = elem.parentNode) {
-            if (Set.has(this.alwaysValidElements, elem.localName))
+            if (this.alwaysValidElements.has(elem.localName))
                 break;
 
             let { display } = DOM(elem).style;
-            if (Set.has(this.validIfBlockElements, elem.localName) && display == "block")
+            if (this.validIfBlockElements.has(elem.localName) && display == "block")
                 break;
-            if (Set.has(this.validIfNotInlineElements, elem.localName) && display != "inline")
+            if (this.validIfNotInlineElements.has(elem.localName) && display != "inline")
                 break;
         }
         return elem;
@@ -1207,16 +1207,16 @@ var Aardvark = Class("Aardvark", {
 
     dBoxId: 0,
 
-    alwaysValidElements: Set(["applet", "blockquote", "div", "form",
-                              "h1", "h2", "h3", "iframe", "img", "object",
-                              "p", "table", "td", "th", "tr"]),
+    alwaysValidElements: RealSet(["applet", "blockquote", "div", "form",
+                                 "h1", "h2", "h3", "iframe", "img", "object",
+                                 "p", "table", "td", "th", "tr"]),
 
-    validIfBlockElements: Set(["a", "span"]),
+    validIfBlockElements: RealSet(["a", "span"]),
 
-    validIfNotInlineElements: Set(["code", "li", "ol", "pre", "ul"]),
+    validIfNotInlineElements: RealSet(["code", "li", "ol", "pre", "ul"]),
 
-    leafElems: Set(["area", "base", "basefont", "br", "col", "frame", "hr",
-                    "img", "input", "isindex", "link", "meta", "param"])
+    leafElems: RealSet(["area", "base", "basefont", "br", "col", "frame", "hr",
+                       "img", "input", "isindex", "link", "meta", "param"])
 });
 
 modes.addMode("AARDVARK", {
